@@ -1,11 +1,19 @@
-export class CheckoutStepTwoPage { // מחלקה המייצגת את דף סיכום ההזמנה 
-constructor(page) {
-    this.page = page;
-
-    this.finishButton = page.locator('#finish'); // זיהוי כפתור הסיום 
-this.summaryTotal = page.locator('.summary_total_label'); // זיהוי הטקסט של המחיר הסופי לצורך אימות 
-}
-async finishCheckout() { //  פונקציה שמסיימת את ההזמנה 
-await this.finishButton.click(); // לחיצה על כפתור הסיום 
-}
+export class CheckoutStepTwoPage {
+    constructor(page) {
+        this.page = page;
+        // Locators
+        this.pageTitle = page.locator('.title');
+        this.finishButton = page.locator('#finish');
+        this.summaryTotal = page.locator('.summary_total_label');
+    }
+    // Actions / Methods
+    async getPageTitle() {
+        return await this.pageTitle.innerText();
+    }
+    async finishCheckout() {
+        await this.finishButton.click();
+    }
+    async getSummaryTotal() {
+        return await this.summaryTotal.innerText();
+    }
 }

@@ -1,48 +1,82 @@
 import { test, expect } from '@playwright/test';
-import { USERS } from '../data/userData.js';
-import { LoginPage } from '../pages/LoginPage.js';
-import { InventoryPage } from '../pages/InventoryPage.js';
-import { CartPage } from '../pages/CartPage.js';
-import { CheckoutStepOnePage } from '../pages/CheckoutStepOnePage.js';
-import { CheckoutStepTwoPage } from '../pages/CheckoutStepTwoPage.js';
-import { CheckoutCompletePage } from '../pages/CheckoutCompletePage.js';
 
-test('Sanity Test - End to End Purchase', async ({ page }) => { // אתחול כל הדפים שנשתמש בהם 
-const loginPage = new 
-LoginPage(page); 
-const inventoryPage = new
-InventoryPage(page)
-const cartPage = new 
-CartPage(page); 
-const checkoutOne = new
-CheckoutStepOnePage(page);
-const checkoutTwo = new
-CheckoutStepTwoPage(page);
-const checkoutComplete = new
-CheckoutCompletePage(page);
+import { LoginPage } from '../pages/LoginPage';
+import { InventoryPage } from '../pages/InventoryPage';
+import { CartPage } from '../pages/CartPage';
+import { CheckoutStepOnePage } from '../pages/CheckoutStepOnePage';
+import { CheckoutStepTwoPage } from '../pages/CheckoutStepTwoPage';
+import { CheckoutCompletePage } from '../pages/CheckoutCompletePage';
 
-// התחברות למערכת 
+import { USERS, BASE_URL } from '../data/userData';
 
-await loginPage.goto();
-await loginPage.login(USERS.standard.username, USERS.standard.password);
+test.describe('Sanity Tests', () => {
 
-// הוספת מוצרים ומעבר לעגלה 
+  test('Sanity - End to End purchase flow', async ({ page }) => {
 
-await inventoryPage.addItemsToCart();
-await inventoryPage.gotoCart();
+    // 1 Navigate to site
+    const loginPage = new LoginPage(page);
+    await loginPage.navigate(BASE_URL);
 
-// וידוא שיש 2 מוצרים בעגלה ומעבר לקופה 
+    // 2 Login with standard_user
+    await loginPage.login(
+      USERS.standard.username,
+      USERS.standard.password
+    );
 
-const itemsCount = await
-cartPage.getCartItemCount();
-expect(itemsCount).toBe(2); // בדיקה שיש 2 מוצרים 
-await cartPage.startCheckout();
+    // 3 Assert Inventory page
+    await expect(page).toHaveURL(/inventory\.html/);
+    const inventoryPage = new InventoryPage(page);
+    await expect(await inventoryPage.getPageTitle()).toBe('Products');
 
-// מילוי פרטים אישיים 
+    // 4 Add two products
+    await inventoryPage.addBackpackToCart();
+    await inventoryPage.addBikeLightToCart();
 
-await checkoutOne.fillDetails('Sean', 'Traskonov', '12345');
-await checkoutTwo.finishCheckout(); // סיום ההזמנה לחיצה על סיום 
+    // 5 Assert cart badge = 2
+    await expect(await inventoryPage.getCartBadgeCount()).toBe('2');
 
-const message = await checkoutComplete.getCompleteMessage(); // בדיקה סופית וידוא שהופיעה הודעת ההצלחה 
-expect(message).toBe('Thank you for your order!');
+    // 6 Go to cart
+    await inventoryPage.goToCart();
+
+    // 7 Assert Cart page
+    await expect(page).toHaveURL(/cart\.html/);
+    const cartPage = new CartPage(page);
+    await expect(await cartPage.getPageTitle()).toBe('Your Cart');
+
+    // 8 Assert two items in cart
+    await expect(await cartPage.getCartItemCount()).toBe(2);
+
+    // 9 Checkout
+    await cartPage.clickCheckout();
+
+    // 10 Checkout Step One
+    await expect(page).toHaveURL(/checkout-step-one\.html/);
+    const stepOnePage = new CheckoutStepOnePage(page);
+    await expect(await stepOnePage.getPageTitle())
+      .toBe('Checkout: Your Information');
+
+    await stepOnePage.fillDetails('Test', 'User', '12345');
+
+    //  Checkout Step Two
+    await expect(page).toHaveURL(/checkout-step-two\.html/);
+    const stepTwoPage = new CheckoutStepTwoPage(page);
+    await expect(await stepTwoPage.getPageTitle())
+      .toBe('Checkout: Overview');
+
+    // Optional but good assertion
+    const totalText = await stepTwoPage.getSummaryTotal();
+    await expect(totalText).toContain('Total');
+
+    //  Finish checkout
+    await stepTwoPage.finishCheckout();
+
+    //  Checkout Complete
+    await expect(page).toHaveURL(/checkout-complete\.html/);
+    const completePage = new CheckoutCompletePage(page);
+    await expect(await completePage.getPageTitle())
+      .toBe('Checkout: Complete!');
+    await expect(await completePage.getCompleteMessage())
+      .toContain('Thank you');
+  });
+
 });

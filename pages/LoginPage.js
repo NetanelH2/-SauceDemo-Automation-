@@ -1,27 +1,22 @@
-export class LoginPage {  // ניהול דף ההתחברות 
-
+export class LoginPage {
     constructor(page) {
         this.page = page;
-
-        this.usernameInput =
-        page.locator('#user-name');
-        this.passwordInput =
-        page.locator('#password');
-        this.loginbutton =
-        page.locator('#login-button');
+        // Locators
+this.usernameInput = page.locator('#user-name');
+this.passwordInput = page.locator('#password');
+this.loginButton = page.locator('#login-button');
+this.errorMessage = page.locator('[data-test="error"]');
     }
-    // פונקציה 1 נסיעה לאתר 
-    async goto () {
-        await this.page.goto('https://www.saucedemo.com/');
+    // Actions / Methods
+    async navigate(baseUrl) {
+        await this.page.goto(baseUrl);
     }
-    // פונקציה 2 ביצוע ההתחברות 
-    async login(username, password) 
-    {
-        await
-        this.usernameInput.fill(username);
-        await
-        this.passwordInput.fill(password);
-        await
-        this.loginbutton.click();
+    async login(username, password) {
+        await this.usernameInput.fill(username);
+        await this.passwordInput.fill(password);
+        await this.loginButton.click();
+    }
+    async getErrorMessage() {
+        return await this.errorMessage.innerText();
     }
 }

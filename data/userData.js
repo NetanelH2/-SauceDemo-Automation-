@@ -1,5 +1,5 @@
- //שמות משתמשים וסיסמאות 
-
+// USERS PASSWORD AND URL
+export const BASE_URL = 'https://www.saucedemo.com/';
 export const USERS = {
   standard: {
     username: 'standard_user',

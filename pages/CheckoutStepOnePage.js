@@ -1,17 +1,23 @@
-export class CheckoutStepOnePage //מחלקה המייצגת את דף מילוי הפרטים האישיים 
-{
+export class CheckoutStepOnePage {
     constructor(page) {
         this.page = page;
 
-        this.firstName = page.locator('#first-name'); // זיהוי שדה השם הפרטי 
-        this.lastName = page.locator('#last-name'); // זיהוי שדה שם המשפחה 
-        this.postalCode = page.locator('#postal-code'); // זיהוי שדה המיקוד 
-this.continueButton = page.locator('#continue'); // זיהוי כפתור ההמשך 
+        // Locators
+        this.pageTitle = page.locator('.title');
+        this.firstName = page.locator('#first-name');
+        this.lastName = page.locator('#last-name');
+        this.postalCode = page.locator('#postal-code');
+        this.continueButton = page.locator('#continue');
     }
+    // Actions / Methods
+    async getPageTitle() {
+        return await this.pageTitle.innerText();
+    }
+    // Fill the checkout form
     async fillDetails(firstName, lastName, zip) {
-        await this.firstName.fill(firstName); // למלא את שדה השם הפרטי 
-        await this.lastName.fill(lastName); // למלא את שדה שם המשפחה 
-        await this.postalCode.fill(zip); // למלא את שדה המיקוד 
-        await this.continueButton.click(); // ללחוץ על כפתור ההמשך 
+        await this.firstName.fill(firstName);
+        await this.lastName.fill(lastName);
+        await this.postalCode.fill(zip);
+        await this.continueButton.click();
     }
 }

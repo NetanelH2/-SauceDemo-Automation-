@@ -1,14 +1,26 @@
-export class CartPage { // המחלקה המייצגת את דף העגלה 
-constructor(page) {
-    this.page = page;
-
-    this.cartItems = page.locator('.cart_item'); // זיהוי רשימת המוצרים בעגלה 
-    this.checkoutButton = page.locator('#checkout'); // זיהוי כפתור המעבר לקופה 
-}
-async startCheckout() { // פונקציה לביצוע מעבר לקופה 
-await this.checkoutButton.click();
-}
-async getCartItemCount() { // פונקציה שבודקת את מספר הפריטים הקיים בעגלה 
-return await this.cartItems.count();
-}
+export class CartPage {
+    constructor(page) {
+        this.page = page;
+        // Locators
+        this.pageTitle = page.locator('.title');
+        this.cartItems = page.locator('.cart_item');
+        this.checkoutButton = page.locator('#checkout');
+        this.continueShoppingButton = page.locator('#continue-shopping'); 
+    }
+    // Actions / Methods
+    async getPageTitle() {
+        return await this.pageTitle.innerText();
+    }
+    // Get the count of items currently in the cart
+    async getCartItemCount() {
+        return await this.cartItems.count();
+    }
+    // Click on Checkout Button
+    async clickCheckout() {
+        await this.checkoutButton.click();
+    }
+    // Click on Continue Shopping button
+    async clickContinueShopping() {
+        await this.continueShoppingButton.click();
+    }
 }
