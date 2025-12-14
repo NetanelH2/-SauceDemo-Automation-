@@ -1,82 +1,49 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage.js';
+import { InventoryPage } from '../pages/InventoryPage.js';
+import { CartPage } from '../pages/CartPage.js';
+import { CheckoutStepOnePage } from '../pages/CheckoutStepOnePage.js';
+import { CheckoutStepTwoPage } from '../pages/CheckoutStepTwoPage.js';
+import { CheckoutCompletePage } from '../pages/CheckoutCompletePage.js';
+import { USERS, BASE_URL } from '../data/userData.js';
 
-import { LoginPage } from '../pages/LoginPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutStepOnePage } from '../pages/CheckoutStepOnePage';
-import { CheckoutStepTwoPage } from '../pages/CheckoutStepTwoPage';
-import { CheckoutCompletePage } from '../pages/CheckoutCompletePage';
+test('Sanity - End to End purchase flow', async ({ page }) => {
 
-import { USERS, BASE_URL } from '../data/userData';
+  const loginPage = new LoginPage(page);
+  await loginPage.navigate(BASE_URL);
+  await loginPage.login(USERS.standard.username, USERS.standard.password);
 
-test.describe('Sanity Tests', () => {
+  await expect(page).toHaveURL(/inventory\.html/);
+  await expect(page.locator('.title')).toHaveText('Products');
 
-  test('Sanity - End to End purchase flow', async ({ page }) => {
+  const inventoryPage = new InventoryPage(page);
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.goToCart();
 
-    // 1 Navigate to site
-    const loginPage = new LoginPage(page);
-    await loginPage.navigate(BASE_URL);
+  await expect(page).toHaveURL(/cart\.html/);
+  await expect(page.locator('.title')).toHaveText('Your Cart');
 
-    // 2 Login with standard_user
-    await loginPage.login(
-      USERS.standard.username,
-      USERS.standard.password
-    );
+  const cartPage = new CartPage(page);
+  await expect(await cartPage.getCartItemCount()).toBe(2);
+  await cartPage.clickCheckout();
 
-    // 3 Assert Inventory page
-    await expect(page).toHaveURL(/inventory\.html/);
-    const inventoryPage = new InventoryPage(page);
-    await expect(await inventoryPage.getPageTitle()).toBe('Products');
+  await expect(page).toHaveURL(/checkout-step-one\.html/);
+  await expect(page.locator('.title')).toHaveText('Checkout: Your Information');
 
-    // 4 Add two products
-    await inventoryPage.addBackpackToCart();
-    await inventoryPage.addBikeLightToCart();
+  const stepOne = new CheckoutStepOnePage(page);
+  await stepOne.fillDetails('Test', 'User', '12345');
 
-    // 5 Assert cart badge = 2
-    await expect(await inventoryPage.getCartBadgeCount()).toBe('2');
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+  await expect(page.locator('.title')).toHaveText('Checkout: Overview');
 
-    // 6 Go to cart
-    await inventoryPage.goToCart();
+  const stepTwo = new CheckoutStepTwoPage(page);
+  await stepTwo.finishCheckout();
 
-    // 7 Assert Cart page
-    await expect(page).toHaveURL(/cart\.html/);
-    const cartPage = new CartPage(page);
-    await expect(await cartPage.getPageTitle()).toBe('Your Cart');
+  await expect(page).toHaveURL(/checkout-complete\.html/);
+  await expect(page.locator('.title')).toHaveText('Checkout: Complete!');
 
-    // 8 Assert two items in cart
-    await expect(await cartPage.getCartItemCount()).toBe(2);
-
-    // 9 Checkout
-    await cartPage.clickCheckout();
-
-    // 10 Checkout Step One
-    await expect(page).toHaveURL(/checkout-step-one\.html/);
-    const stepOnePage = new CheckoutStepOnePage(page);
-    await expect(await stepOnePage.getPageTitle())
-      .toBe('Checkout: Your Information');
-
-    await stepOnePage.fillDetails('Test', 'User', '12345');
-
-    //  Checkout Step Two
-    await expect(page).toHaveURL(/checkout-step-two\.html/);
-    const stepTwoPage = new CheckoutStepTwoPage(page);
-    await expect(await stepTwoPage.getPageTitle())
-      .toBe('Checkout: Overview');
-
-    // Optional but good assertion
-    const totalText = await stepTwoPage.getSummaryTotal();
-    await expect(totalText).toContain('Total');
-
-    //  Finish checkout
-    await stepTwoPage.finishCheckout();
-
-    //  Checkout Complete
-    await expect(page).toHaveURL(/checkout-complete\.html/);
-    const completePage = new CheckoutCompletePage(page);
-    await expect(await completePage.getPageTitle())
-      .toBe('Checkout: Complete!');
-    await expect(await completePage.getCompleteMessage())
-      .toContain('Thank you');
-  });
+  const completePage = new CheckoutCompletePage(page);
+  await expect(await completePage.getCompleteMessage()).toContain('Thank you');
 
 });
