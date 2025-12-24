@@ -1,25 +1,30 @@
- import {test, expect} from '@playwright/test';
- import {LoginPage} from '../pages/LoginPage.js';
- import {InventoryPage} from '../pages/InventoryPage.js';
- import {USERS} from '../data/userData.js';
+import { test, expect } from '@playwright/test';
 
- const positiveUsers = [
+import { LoginPage } from '../pages/LoginPage.js';
+import { InventoryPage } from '../pages/InventoryPage.js';
+
+import { USERS } from '../data/userData.js';
+import { URLS } from '../data/urls.js';
+
+const POSITIVE_USERS = [
   USERS.standard,
   USERS.problem,
   USERS.performance,
   USERS.error,
   USERS.visual,
- ];
- for (const user of positiveUsers) {
-  test(`Positive Login Test - ${user.username}`, async ({page}) => {
-    const loginPage = new LoginPage(page);
-    const inventoryPage = new InventoryPage(page);
+];
 
-    await loginPage.navigate();
+test.describe('Positive Login Tests', () => {
+  for (const user of POSITIVE_USERS) {
+    test(`Positive Login Test - ${user.username}`, async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
 
-    await loginPage.login(user.username, user.password);
+      await loginPage.navigate();
+      await loginPage.login(user.username, user.password);
 
-    await expect(page).toHaveURL(/inventory\.html/);
-    await expect(inventoryPage.pageTitle).toHaveText('Products');
-  });
- }
+      await expect(page).toHaveURL(URLS.INVENTORY);
+      await expect(inventoryPage.pageTitle()).toHaveText('Products');
+    });
+  }
+});
