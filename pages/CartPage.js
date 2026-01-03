@@ -1,9 +1,10 @@
  export class CartPage {
   constructor(page) {
     this.page = page
-   }
-   checkoutButton = () => this.page.locator('[data-test="checkout"]')
+   } // locator
+   checkoutButton = ('[data-test="checkout"]')
+    // action
    async proceedToCheckout() {
-   await this.checkoutButton().click()
+   await this.page.locator(this.checkoutButton).click()
  }
 }

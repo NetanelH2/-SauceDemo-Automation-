@@ -3,19 +3,19 @@
     constructor(page) {
      this.page = page;
    }
-
-  usernameField = () => this.page.locator('[data-test="username"]');
-  passwordField = () => this.page.locator('[data-test="password"]');
-  loginButton = () => this.page.locator('[data-test="login-button"]');
-  errorMessage = () => this.page.locator('[data-test="error"]');
-
+ // locators
+ usernameField = ('[data-test="username"]')
+ passwordField = ('[data-test="password"]')
+ loginButton = ('[data-test="login-button"]')
+ errorMessage = ('[data-test="error"]')
+ // actions
    async navigate() {
      await this.page.goto(BASE_URL);
   }
 
   async login(username, password) {
-    await this.usernameField().fill(username);
-    await this.passwordField().fill(password);
-    await this.loginButton().click();
+    await this.page.locator(this.usernameField).fill(username);
+    await this.page.locator(this.passwordField).fill(password);
+    await this.page.locator(this.loginButton).click();
   }
 }

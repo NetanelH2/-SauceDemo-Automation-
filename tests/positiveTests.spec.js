@@ -16,7 +16,7 @@ const POSITIVE_USERS = [
 
 test.describe('Positive Login Tests', () => {
   for (const user of POSITIVE_USERS) {
-    test(`Positive Login Test - ${user.username}`, async ({ page }) => {
+    test(`Positive Login Test - ${user.username}`, async ({page}) => {
       const loginPage = new LoginPage(page);
       const inventoryPage = new InventoryPage(page);
 
@@ -24,7 +24,7 @@ test.describe('Positive Login Tests', () => {
       await loginPage.login(user.username, user.password);
 
       await expect(page).toHaveURL(URLS.INVENTORY);
-      await expect(inventoryPage.pageTitle()).toHaveText('Products');
+      await expect(page.locator(inventoryPage.pageTitle)).toHaveText('Products');
     });
   }
 });

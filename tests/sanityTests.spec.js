@@ -11,7 +11,7 @@ import { USERS } from '../data/userData.js';
 import { CHECKOUT_DATA } from '../data/checkoutData.js';
 import { URLS } from '../data/urls.js';
 
-test('Sanity Test - Full Purchase Flow', async ({ page }) => {
+test('Sanity Test - Full Purchase Flow', async ({page}) => {
   const loginPage = new LoginPage(page);
   const inventoryPage = new InventoryPage(page);
   const cartPage = new CartPage(page);
@@ -25,12 +25,12 @@ test('Sanity Test - Full Purchase Flow', async ({ page }) => {
   await expect(page).toHaveURL(URLS.INVENTORY);
   await expect(page).toHaveTitle(/Swag Labs/);
 
-  await inventoryPage.backpackAddToCartButton().click();
-  await inventoryPage.bikeLightAddToCartButton().click();
+  await page.locator(inventoryPage.backpackAddToCartButton).click();
+  await page.locator(inventoryPage.bikeLightAddToCartButton).click();
 
-  await expect(inventoryPage.cartBadge()).toHaveText('2');
+  await expect(page.locator(inventoryPage.cartBadge)).toHaveText('2');
 
-  await inventoryPage.cartButton().click();
+  await page.locator(inventoryPage.cartButton).click();
   await expect(page).toHaveURL(URLS.CART);
 
   await cartPage.proceedToCheckout();
@@ -47,5 +47,5 @@ test('Sanity Test - Full Purchase Flow', async ({ page }) => {
   await stepTwo.finishOrder();
   await expect(page).toHaveURL(URLS.CHECKOUT_COMPLETE);
 
-  await expect(completePage.successHeader()).toHaveText('Thank you for your order!');
+  await expect(page.locator(completePage.successHeader)).toHaveText('Thank you for your order!');
 });

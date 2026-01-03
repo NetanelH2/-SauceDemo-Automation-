@@ -2,8 +2,10 @@
    constructor(page) {
       this.page = page
    }
-   finishButton = () => this.page.locator('[data-test="finish"]')
+   // locator
+   finishButton = ('[data-test="finish"]')
+  // action
    async finishOrder() {
-      await this.finishButton().click()
+      await this.page.locator(this.finishButton).click()
    }
  }

@@ -2,16 +2,16 @@
   constructor(page) {
     this.page = page;
   }
-
-  firstNameField = () => this.page.locator('[data-test="firstName"]');
-  lastNameField = () => this.page.locator('[data-test="lastName"]');
-  postalCodeField = () => this.page.locator('[data-test="postalCode"]');
-  continueButton = () => this.page.locator('[data-test="continue"]');
-
+ // locators
+  firstNameField = ('[data-test="firstName"]');
+  lastNameField = ('[data-test="lastName"]');
+  postalCodeField = ('[data-test="postalCode"]');
+  continueButton = ('[data-test="continue"]');
+ // actions
   async fillInformation(fname, lname, zip) {
-    await this.firstNameField().fill(fname);
-    await this.lastNameField().fill(lname);
-    await this.postalCodeField().fill(zip);
-    await this.continueButton().click();
+    await this.page.locator(this.firstNameField).fill(fname);
+    await this.page.locator(this.lastNameField).fill(lname);
+    await this.page.locator(this.postalCodeField).fill(zip);
+    await this.page.locator(this.continueButton).click();
   }
 }
